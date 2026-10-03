@@ -1,0 +1,19 @@
+{
+  "name": "account-hub",
+  "version": "0.3.2",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,admin -c green,cyan \"npm run dev -w @account-hub/api\" \"npm run dev -w @account-hub/admin\"",
+    "build": "npm run build -w @account-hub/sdk && npm run build -w @account-hub/admin && npm run build -w @account-hub/api",
+    "start": "npm run start -w @account-hub/api",
+    "test": "npm run test -w @account-hub/api",
+    "typecheck": "npm run typecheck -w @account-hub/sdk && npm run typecheck -w @account-hub/admin && npm run typecheck -w @account-hub/api"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

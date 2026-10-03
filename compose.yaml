@@ -1,0 +1,36 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: account_hub
+      POSTGRES_USER: account_hub
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - account_hub_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U account_hub -d account_hub"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  account-hub:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://account_hub:${POSTGRES_PASSWORD}@postgres:5432/account_hub
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.com}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD is required}
+      APP_ORIGIN: ${APP_ORIGIN:-http://localhost:8790}
+      PUBLIC_URL: ${PUBLIC_URL:?PUBLIC_URL is required}
+      MASTER_ENCRYPTION_KEY: ${MASTER_ENCRYPTION_KEY:?MASTER_ENCRYPTION_KEY is required}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+    ports:
+      - "8790:8790"
+
+volumes:
+  account_hub_postgres:
